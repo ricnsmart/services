@@ -1,0 +1,26 @@
+package services
+
+const (
+	OK                   = "OK"
+	BindError            = "BIND_ERROR"
+	InvalidParam         = "INVALID_PARAM"
+	UnknownError         = "UNKNOWN_ERROR"
+	QueryRecordFailed    = "QUERY_RECORD_FAILED"
+	SaveRecordError      = "NEW_RECORD_ERROR"
+	UpdateRecordError    = "UPDATE_RECORD_ERROR"
+	NoMatchRecord        = "NO_MATCH_RECORD"
+	SetCacheError        = "SET_CACHE_ERROR"
+	GetCacheError        = "GET_CACHE_ERROR"
+	ConnectionFailed     = "CONNECTION_FAILED"
+	ResponseTimeOut      = "RESPONSE_TIMEOUT"
+	RequestFailed        = "REQUEST_FAILED"
+	UnmarshalFailed      = "UNMARSHAL_FAILED"
+	MarshalFailed        = "MARSHAL_FAILED"
+	PublishFailed        = "PUBLISH_FAILED"
+	DecodeFailed         = "DECODE_FAILED"
+	EmptyMsgBody         = "EMPTY_MSG_BODY"
+	DeviceOffline        = "DEVICE_OFFLINE"
+	SendRequestFailed    = "SEND_REQUEST_FAILED"
+	DeviceResponseFailed = "DEVICE_RESPONSE_FAILED"
+	CreateXLSXFailed     = "CREATE_XLSX_FAILED"
+)
