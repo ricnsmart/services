@@ -22,10 +22,11 @@ func InitVms(accessKeyId, accessKeySecret string) {
 	}
 }
 
-func Call(calledNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
+func Call(calledNumber, calledShowNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
 	request := dyvmsapi.CreateSingleCallByTtsRequest()
 	request.Scheme = "https"
 	request.CalledNumber = calledNumber
+	request.CalledShowNumber = calledShowNumber
 	request.TtsCode = ttsCode
 	request.TtsParam = ttsParam
 	response, err := vmsClient.SingleCallByTts(request)
