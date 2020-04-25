@@ -24,7 +24,7 @@ type RabbitMQConnection struct {
 	state      int32
 }
 
-func New(url string) *RabbitMQConnection {
+func NewRabbitMQConnection(url string) *RabbitMQConnection {
 	return &RabbitMQConnection{
 		url:     url,
 		stopCh:  make(chan struct{}),
