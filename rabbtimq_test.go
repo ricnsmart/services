@@ -15,7 +15,7 @@ func failOnError(err error, msg string) {
 }
 
 func TestSend(t *testing.T) {
-	c := New(url)
+	c := NewRabbitMQConnection(url)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")
 	ch, err := c.Channel()
@@ -35,7 +35,7 @@ func TestSend(t *testing.T) {
 }
 
 func TestReceive(t *testing.T) {
-	c := New(url)
+	c := NewRabbitMQConnection(url)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")
 	forever := make(chan bool)

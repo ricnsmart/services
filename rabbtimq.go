@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/streadway/amqp"
 	"log"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -20,7 +19,6 @@ type RabbitMQConnection struct {
 	connection *amqp.Connection
 	stopCh     chan struct{}
 	closeCh    chan *amqp.Error // RabbitMQ 监听连接错误
-	mu         sync.Mutex       // 保护资源并发读写
 	state      int32
 }
 
@@ -33,9 +31,9 @@ func NewRabbitMQConnection(url string) *RabbitMQConnection {
 }
 
 func (c *RabbitMQConnection) Open() error {
-	// 进行Open期间不允许做任何跟连接有关的事情
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	if c.State() == OpenedState {
+		return errors.New("rabbitMQ: connection had been opened")
+	}
 
 	conn, err := amqp.Dial(c.url)
 	if err != nil {
@@ -52,48 +50,65 @@ func (c *RabbitMQConnection) Open() error {
 }
 
 func (c *RabbitMQConnection) Close() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	close(c.stopCh)
+	if c.State() == ClosedState {
+		return
+	}
+	select {
+	case <-c.stopCh:
+		// had been closed
+	default:
+		close(c.stopCh)
+	}
+	// wait done
+	for c.State() != ClosedState {
+		time.Sleep(time.Second)
+	}
 }
 
 func (c *RabbitMQConnection) keepAlive() {
 	select {
 	case <-c.stopCh:
-		c.mu.Lock()
 		c.connection.Close()
 		atomic.StoreInt32(&c.state, ClosedState)
-		c.mu.Unlock()
 	case err := <-c.closeCh:
 		log.Printf("rabbitMQ: disconnected with MQ, code:%d, reason:%s\n", err.Code, err.Reason)
 
 		atomic.StoreInt32(&c.state, ReopeningState)
 		var tempDelay time.Duration // how long to sleep on accept failure
 		for {
-			if e := c.Open(); e != nil {
-				if tempDelay == 0 {
-					tempDelay = 5 * time.Millisecond
-				} else {
-					tempDelay *= 2
+			select {
+			case <-c.stopCh:
+				c.connection.Close()
+				atomic.StoreInt32(&c.state, ClosedState)
+				return
+			default:
+				if e := c.Open(); e != nil {
+					if tempDelay == 0 {
+						tempDelay = 5 * time.Millisecond
+					} else {
+						tempDelay *= 2
+					}
+					if max := 1 * time.Second; tempDelay > max {
+						tempDelay = max
+					}
+					log.Printf("rabbitMQ: connection recover failed error: %v; retrying in %v", err, tempDelay)
+					time.Sleep(tempDelay)
+					continue
 				}
-				if max := 1 * time.Second; tempDelay > max {
-					tempDelay = max
-				}
-				log.Printf("rabbitMQ: connection recover failed error: %v; retrying in %v", err, tempDelay)
-				time.Sleep(tempDelay)
-				continue
+				log.Println("rabbitMQ: connection recover succeeded")
+				return
 			}
-			log.Println("rabbitMQ: connection recover succeeded")
-			return
 		}
 	}
 }
 
 func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.State() != OpenedState {
-		return nil, errors.New("rabbitMQ connection not opened")
+	for c.State() != OpenedState {
+		_, ok := <-c.stopCh
+		if !ok {
+			return nil, errors.New("rabbitMQ: connection had been closed")
+		}
+		time.Sleep(time.Second)
 	}
 	return c.connection.Channel()
 }
