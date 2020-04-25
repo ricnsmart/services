@@ -14,7 +14,7 @@ type SmsResponse struct {
 
 var smsClient *dysmsapi.Client
 
-func InitSms(accessKeyId, accessKeySecret string) {
+func InitAliSms(accessKeyId, accessKeySecret string) {
 	var err error
 	smsClient, err = dysmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	if err != nil {

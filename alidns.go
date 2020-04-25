@@ -34,7 +34,7 @@ type DomainRecordResponse struct {
 
 var dnsClient *alidns.Client
 
-func InitDns(accessKeyId, accessKeySecret string) {
+func InitAliDns(accessKeyId, accessKeySecret string) {
 	var err error
 	dnsClient, err = alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	if err != nil {

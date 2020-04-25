@@ -7,7 +7,7 @@ import (
 
 var RedisClient *redis.Client
 
-func InitCache(address, password string) {
+func ConnectRedis(address, password string) {
 	RedisClient = redis.NewClient(&redis.Options{Addr: address, Password: password})
 	_, err := RedisClient.Ping().Result()
 	if err != nil {

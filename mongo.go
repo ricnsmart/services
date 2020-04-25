@@ -15,7 +15,7 @@ var Mgo mgo
 
 var mongodb *mongo.Database
 
-func InitMongodb(address, dbName string) {
+func ConnectMongodb(address, dbName string) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(address))

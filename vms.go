@@ -14,7 +14,7 @@ type VmsResponse struct {
 
 var vmsClient *dyvmsapi.Client
 
-func InitVms(accessKeyId, accessKeySecret string) {
+func InitAliVms(accessKeyId, accessKeySecret string) {
 	var err error
 	vmsClient, err = dyvmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	if err != nil {
