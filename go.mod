@@ -1,4 +1,4 @@
-module services
+module github.com/ricnsmart/services
 
 go 1.14
 
