@@ -9,10 +9,6 @@ import (
 	"time"
 )
 
-type mgo struct{}
-
-var Mgo mgo
-
 var mongodb *mongo.Database
 
 func ConnectMongodb(address, dbName string) {
@@ -30,6 +26,6 @@ func ConnectMongodb(address, dbName string) {
 	mongodb = client.Database(dbName)
 }
 
-func (mgo) Collection(name string) *mongo.Collection {
+func Collection(name string) *mongo.Collection {
 	return mongodb.Collection(name)
 }
