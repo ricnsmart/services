@@ -23,14 +23,6 @@ func TestSend(t *testing.T) {
 	//defer ch.Close()
 	//forever := make(chan bool)
 	newSender(ch, "test_queue1", "test_queue1")
-	newSender(ch, "test_queue2", "test_queue2")
-	newSender(ch, "test_queue3", "test_queue3")
-	newSender(ch, "test_queue4", "test_queue4")
-	newSender(ch, "test_queue5", "test_queue5")
-	newSender(ch, "test_queue6", "test_queue6")
-	newSender(ch, "test_queue7", "test_queue7")
-	newSender(ch, "test_queue8", "test_queue8")
-	newSender(ch, "test_queue9", "test_queue9")
 	//<-forever
 }
 
@@ -40,14 +32,14 @@ func TestReceive(t *testing.T) {
 	failOnError(err, "Failed to open a connection")
 	forever := make(chan bool)
 	go newReceiver(c, "test_queue1")
-	go newReceiver(c, "test_queue2")
-	go newReceiver(c, "test_queue3")
-	go newReceiver(c, "test_queue4")
-	go newReceiver(c, "test_queue5")
-	go newReceiver(c, "test_queue6")
-	go newReceiver(c, "test_queue7")
-	go newReceiver(c, "test_queue8")
-	go newReceiver(c, "test_queue9")
+	//go newReceiver(c, "test_queue2")
+	//go newReceiver(c, "test_queue3")
+	//go newReceiver(c, "test_queue4")
+	//go newReceiver(c, "test_queue5")
+	//go newReceiver(c, "test_queue6")
+	//go newReceiver(c, "test_queue7")
+	//go newReceiver(c, "test_queue8")
+	//go newReceiver(c, "test_queue9")
 	<-forever
 }
 
@@ -80,6 +72,49 @@ func newSender(ch *amqp.Channel, queue, msg string) {
 		log.Println(err)
 		return
 	}
+
+	err = ch.Publish(
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ch.Publish(
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ch.Publish(
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	log.Printf(" [x] Sent %s", body)
 }
 
