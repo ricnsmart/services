@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dyvmsapi"
-	"log"
 )
 
 type VmsResponse struct {
@@ -14,12 +13,10 @@ type VmsResponse struct {
 
 var vmsClient *dyvmsapi.Client
 
-func InitAliVms(accessKeyId, accessKeySecret string) {
+func InitAliVms(accessKeyId, accessKeySecret string) error {
 	var err error
 	vmsClient, err = dyvmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func Call(calledNumber, calledShowNumber, ttsCode, ttsParam string) (*VmsResponse, error) {

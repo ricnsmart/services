@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
-	"log"
 )
 
 type Record struct {
@@ -34,12 +33,10 @@ type DomainRecordResponse struct {
 
 var dnsClient *alidns.Client
 
-func InitAliDns(accessKeyId, accessKeySecret string) {
+func InitAliDns(accessKeyId, accessKeySecret string) error {
 	var err error
 	dnsClient, err = alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func GetDomainRecords(domainName, keyWord string, pageNumber, pageSize int) (*GetDomainRecordsResponse, error) {

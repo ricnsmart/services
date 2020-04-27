@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
-	"log"
 )
 
 type SmsResponse struct {
@@ -14,12 +13,10 @@ type SmsResponse struct {
 
 var smsClient *dysmsapi.Client
 
-func InitAliSms(accessKeyId, accessKeySecret string) {
+func InitAliSms(accessKeyId, accessKeySecret string) error {
 	var err error
 	smsClient, err = dysmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func SendSms(signName, phoneNumbers, templateCode, templateParam string) (*SmsResponse, error) {

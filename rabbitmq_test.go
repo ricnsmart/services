@@ -1,9 +1,12 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"github.com/streadway/amqp"
 	"log"
 	"testing"
+	"time"
 )
 
 const url = "amqp://ricnsmart:9ef16689fdaf@dev.ricnsmart.com:5672/"
@@ -22,11 +25,15 @@ func TestSend(t *testing.T) {
 	failOnError(err, "failed to open a channel")
 	//defer ch.Close()
 	//forever := make(chan bool)
-	newSender(ch, "test_queue1", "test_queue1")
+	m := make(map[string]interface{})
+	m["time"] = time.Now()
+	newSender(ch, "test_queue1", m)
 	//<-forever
 }
 
 func TestReceive(t *testing.T) {
+	ConnectMongodb("mongodb://ricnsmart:0c42e41baacc@dev.ricnsmart.com:27017", "gateway")
+
 	c := NewRabbitMQConnection(url)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")
@@ -43,8 +50,8 @@ func TestReceive(t *testing.T) {
 	<-forever
 }
 
-func newSender(ch *amqp.Channel, queue, msg string) {
-
+func newSender(ch *amqp.Channel, queue string, msg interface{}) {
+	buf, _ := json.Marshal(msg)
 	q, err := ch.QueueDeclare(
 		queue, // name
 		false, // durable
@@ -58,7 +65,6 @@ func newSender(ch *amqp.Channel, queue, msg string) {
 		return
 	}
 
-	body := msg
 	err = ch.Publish(
 		"",     // exchange
 		q.Name, // routing key
@@ -66,56 +72,12 @@ func newSender(ch *amqp.Channel, queue, msg string) {
 		false,  // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(body),
+			Body:        buf,
 		})
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	log.Printf(" [x] Sent %s", body)
 }
 
 func newReceiver(conn *RabbitMQConnection, queue string) {
@@ -157,7 +119,23 @@ func newReceiver(conn *RabbitMQConnection, queue string) {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("%v Received a message: %s", queue, d.Body)
+			m := make(map[string]interface{})
+			err := json.Unmarshal(d.Body, &m)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println(m["time"])
+			t, err := time.Parse(time.RFC3339, m["time"].(string))
+			if err != nil {
+				log.Fatal(err)
+			}
+			m["time"] = t
+			log.Println(t.String())
+			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+			_, err = Collection("test").InsertOne(ctx, m)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}()
 
