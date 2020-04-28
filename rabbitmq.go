@@ -71,7 +71,9 @@ func (c *RabbitMQConnection) keepAlive() {
 		c.connection.Close()
 		atomic.StoreInt32(&c.state, ClosedState)
 	case err := <-c.closeCh:
-		Logger.Error("disconnected with rabbitMQ", zap.Error(err))
+		if err != nil {
+			Logger.Error("disconnected with rabbitMQ", zap.Error(err))
+		}
 
 		atomic.StoreInt32(&c.state, ReopeningState)
 		var tempDelay time.Duration // how long to sleep on accept failure
