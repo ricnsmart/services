@@ -107,13 +107,6 @@ func (c *RabbitMQConnection) keepAlive() {
 }
 
 func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
-	for c.State() != OpenedState {
-		_, ok := <-c.stopCh
-		if !ok {
-			return nil, errors.New("rabbitMQ connection had been closed")
-		}
-		time.Sleep(time.Second)
-	}
 	return c.connection.Channel()
 }
 
