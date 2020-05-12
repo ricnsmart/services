@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
-	"runtime/debug"
 	"sync/atomic"
 	"time"
 )
@@ -25,8 +24,8 @@ type RabbitMQConnection struct {
 
 func NewRabbitMQConnection(url string) *RabbitMQConnection {
 	return &RabbitMQConnection{
-		url:    url,
-		stopCh: make(chan struct{}),
+		url:   url,
+		state: ClosedState,
 	}
 }
 
@@ -42,6 +41,7 @@ func (c *RabbitMQConnection) Open() error {
 
 	atomic.StoreInt32(&c.state, OpenedState)
 	c.connection = conn
+	c.stopCh = make(chan struct{})
 	// 必须新建一个错误监听器，否则可能会导致无限关闭信号，导致反复重新open
 	c.closeCh = make(chan *amqp.Error, 1)
 	// 对connection的close事件加监听器
@@ -101,7 +101,6 @@ func (c *RabbitMQConnection) keepAlive() {
 					time.Sleep(tempDelay)
 					continue
 				}
-				debug.PrintStack()
 				Logger.Info("rabbitMQ connection recover succeeded")
 				return
 			}
