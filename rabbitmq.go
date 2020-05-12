@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"runtime/debug"
 	"sync/atomic"
 	"time"
 )
@@ -24,9 +25,8 @@ type RabbitMQConnection struct {
 
 func NewRabbitMQConnection(url string) *RabbitMQConnection {
 	return &RabbitMQConnection{
-		url:     url,
-		stopCh:  make(chan struct{}),
-		closeCh: make(chan *amqp.Error, 1),
+		url:    url,
+		stopCh: make(chan struct{}),
 	}
 }
 
@@ -42,6 +42,8 @@ func (c *RabbitMQConnection) Open() error {
 
 	atomic.StoreInt32(&c.state, OpenedState)
 	c.connection = conn
+	// 必须新建一个错误监听器，否则可能会导致无限关闭信号，导致反复重新open
+	c.closeCh = make(chan *amqp.Error, 1)
 	// 对connection的close事件加监听器
 	c.connection.NotifyClose(c.closeCh)
 	go c.keepAlive()
@@ -94,11 +96,12 @@ func (c *RabbitMQConnection) keepAlive() {
 						tempDelay = max
 					}
 
-					Logger.Error("rabbitMQ connection recover failed", zap.Error(e), zap.Duration("retrying", tempDelay))
+					Logger.Error("rabbitMQ connection recover failed", zap.Error(e), zap.Duration("retry after", tempDelay))
 
 					time.Sleep(tempDelay)
 					continue
 				}
+				debug.PrintStack()
 				Logger.Info("rabbitMQ connection recover succeeded")
 				return
 			}
@@ -110,8 +113,10 @@ func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
 	for c.State() != OpenedState {
 		_, ok := <-c.stopCh
 		if !ok {
+			// 如果stopCh被主动关闭，结束Channel()
 			return nil, errors.New("rabbitMQ connection had been closed")
 		}
+		// 否则继续等待，直到connection opened
 		time.Sleep(time.Second)
 	}
 	return c.connection.Channel()

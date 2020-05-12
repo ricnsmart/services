@@ -3,13 +3,15 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 	"log"
 	"testing"
 	"time"
 )
 
-const url = "amqp://ricnsmart:9ef16689fdaf@dev.ricnsmart.com:5672/"
+const url = "amqp://"
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -32,7 +34,10 @@ func TestSend(t *testing.T) {
 }
 
 func TestReceive(t *testing.T) {
-	ConnectMongodb("mongodb://ricnsmart:0c42e41baacc@dev.ricnsmart.com:27017", "gateway")
+	serviceName := "service"
+
+	// 初始化zap日志
+	InitZap(fmt.Sprintf(`config/%v.log`, serviceName), zap.String("service", serviceName))
 
 	c := NewRabbitMQConnection(url)
 	err := c.Open()
