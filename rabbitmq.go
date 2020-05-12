@@ -108,6 +108,7 @@ func (c *RabbitMQConnection) keepAlive() {
 	}
 }
 
+// !! 当连接失败时，获取channel会出现阻塞，直到连接正常，才会返回可用的channel
 func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
 	for c.State() != OpenedState {
 		_, ok := <-c.stopCh
