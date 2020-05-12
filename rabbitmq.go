@@ -94,7 +94,7 @@ func (c *RabbitMQConnection) keepAlive() {
 						tempDelay = max
 					}
 
-					Logger.Error("rabbitMQ connection recover failed", zap.Error(err), zap.Duration("retrying", tempDelay))
+					Logger.Error("rabbitMQ connection recover failed", zap.Error(e), zap.Duration("retrying", tempDelay))
 
 					time.Sleep(tempDelay)
 					continue
@@ -107,6 +107,13 @@ func (c *RabbitMQConnection) keepAlive() {
 }
 
 func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
+	for c.State() != OpenedState {
+		_, ok := <-c.stopCh
+		if !ok {
+			return nil, errors.New("rabbitMQ connection had been closed")
+		}
+		time.Sleep(time.Second)
+	}
 	return c.connection.Channel()
 }
 
