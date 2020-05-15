@@ -1,7 +1,9 @@
 package services
 
 import (
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
+	"strings"
 )
 
 type SmsResponse struct {
@@ -23,13 +25,20 @@ func InitAliSms(accessKeyId, accessKeySecret, signName string) error {
 	return err
 }
 
-func SendSms(phoneNumbers, templateCode, templateParam string) (*SmsResponse, error) {
+func SendSms(phoneNumbers, templateCode string, templateParamMap map[string]interface{}) (*SmsResponse, error) {
 	request := dysmsapi.CreateSendSmsRequest()
 	request.Scheme = "https"
 	request.SignName = smsSignName
 	request.PhoneNumbers = phoneNumbers
 	request.TemplateCode = templateCode
-	request.TemplateParam = templateParam
+
+	var templateParamArr []string
+	for key, value := range templateParamMap {
+		templateParamArr = append(templateParamArr, fmt.Sprintf(`"%v":"%v"`, key, value))
+	}
+
+	request.TemplateParam = fmt.Sprintf(`{%v}`, strings.Join(templateParamArr, ","))
+
 	response, err := smsClient.SendSms(request)
 	if err != nil {
 		return nil, err
