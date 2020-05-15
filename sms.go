@@ -11,18 +11,22 @@ type SmsResponse struct {
 	Message   string `json:"Message" xml:"Message"`
 }
 
-var smsClient *dysmsapi.Client
+var (
+	smsClient   *dysmsapi.Client
+	smsSignName string
+)
 
-func InitAliSms(accessKeyId, accessKeySecret string) error {
+func InitAliSms(accessKeyId, accessKeySecret, signName string) error {
 	var err error
+	smsSignName = signName
 	smsClient, err = dysmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	return err
 }
 
-func SendSms(signName, phoneNumbers, templateCode, templateParam string) (*SmsResponse, error) {
+func SendSms(phoneNumbers, templateCode, templateParam string) (*SmsResponse, error) {
 	request := dysmsapi.CreateSendSmsRequest()
 	request.Scheme = "https"
-	request.SignName = signName
+	request.SignName = smsSignName
 	request.PhoneNumbers = phoneNumbers
 	request.TemplateCode = templateCode
 	request.TemplateParam = templateParam
