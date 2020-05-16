@@ -11,15 +11,19 @@ type VmsResponse struct {
 	Message   string `json:"Message" xml:"Message"`
 }
 
-var vmsClient *dyvmsapi.Client
+var (
+	vmsClient        *dyvmsapi.Client
+	calledShowNumber string
+)
 
-func InitAliVms(accessKeyId, accessKeySecret string) error {
+func InitAliVms(accessKeyId, accessKeySecret, calledNumber string) error {
 	var err error
+	calledShowNumber = calledNumber
 	vmsClient, err = dyvmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	return err
 }
 
-func Call(calledNumber, calledShowNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
+func Call(calledNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
 	request := dyvmsapi.CreateSingleCallByTtsRequest()
 	request.Scheme = "https"
 	request.CalledNumber = calledNumber
