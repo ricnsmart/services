@@ -2,7 +2,7 @@ package services
 
 import (
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
 /*
@@ -16,13 +16,17 @@ func NewXLSX(filePath string, data []map[string]interface{}, titles map[string]s
 
 	for title, column := range titles {
 		axis := fmt.Sprintf(`%v1`, column)
-		f.SetCellValue(sheet, axis, title)
+		if err := f.SetCellValue(sheet, axis, title); err != nil {
+			return err
+		}
 	}
 
 	for rowNo, rowData := range data {
 		for key, value := range rowData {
 			axis := fmt.Sprintf(`%v%v`, titles[key], rowNo+2)
-			f.SetCellValue(sheet, axis, value)
+			if err := f.SetCellValue(sheet, axis, value); err != nil {
+				return err
+			}
 		}
 	}
 
