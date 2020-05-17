@@ -5,9 +5,14 @@ import (
 	"testing"
 )
 
+const (
+	redisAddress  = ""
+	redisPassword = ""
+)
+
 func TestConnectRedis(t *testing.T) {
 
-	if err := ConnectRedis("dev.ricnsmart.com:10032", "13c7a45a0d9d"); err != nil {
+	if err := ConnectRedis(redisAddress, redisPassword); err != nil {
 		t.Errorf("ConnectRedis() error = %v", err)
 	}
 

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const url = "amqp://"
+const rabbitMQURL = "amqp://"
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -20,7 +20,7 @@ func failOnError(err error, msg string) {
 }
 
 func TestSend(t *testing.T) {
-	c := NewRabbitMQConnection(url)
+	c := NewRabbitMQConnection(rabbitMQURL)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")
 	ch, err := c.Channel()
@@ -39,7 +39,7 @@ func TestReceive(t *testing.T) {
 	// 初始化zap日志
 	InitZap(fmt.Sprintf(`config/%v.log`, serviceName), zap.String("service", serviceName))
 
-	c := NewRabbitMQConnection(url)
+	c := NewRabbitMQConnection(rabbitMQURL)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")
 	forever := make(chan bool)
