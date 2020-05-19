@@ -1,4 +1,4 @@
-package services
+package sms
 
 import (
 	"log"
@@ -12,14 +12,14 @@ const (
 )
 
 func TestSendSms(t *testing.T) {
-	if err := InitAliSms(accessKeyID, accessKeySecret, signName); err != nil {
+	if err := NewClient(accessKeyID, accessKeySecret, signName); err != nil {
 		log.Fatal(err)
 	}
 	templateParamMap := make(map[string]interface{})
 	templateParamMap["name"] = "王松"
 	templateParamMap["drop_rate"] = 50
 	templateParamMap["organization"] = "江苏卫川物联科技有限公司"
-	smsResponse, err := SendSms("13205173164", "SMS_190272170", templateParamMap)
+	smsResponse, err := Send("13205173164", "SMS_190272170", templateParamMap)
 
 	if err != nil {
 		log.Fatal(err)

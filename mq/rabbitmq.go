@@ -1,4 +1,4 @@
-package services
+package mq
 
 import (
 	"errors"
@@ -14,7 +14,7 @@ var (
 	ReopeningState = int32(2)
 )
 
-type RabbitMQConnection struct {
+type Connection struct {
 	url        string
 	connection *amqp.Connection
 	stopCh     chan struct{}
@@ -22,14 +22,14 @@ type RabbitMQConnection struct {
 	state      int32
 }
 
-func NewRabbitMQConnection(url string) *RabbitMQConnection {
-	return &RabbitMQConnection{
+func NewConnection(url string) *Connection {
+	return &Connection{
 		url:   url,
 		state: ClosedState,
 	}
 }
 
-func (c *RabbitMQConnection) Open() error {
+func (c *Connection) Open() error {
 	if c.State() == OpenedState {
 		return errors.New("rabbitMQ: connection had been opened")
 	}
@@ -51,7 +51,7 @@ func (c *RabbitMQConnection) Open() error {
 	return nil
 }
 
-func (c *RabbitMQConnection) Close() {
+func (c *Connection) Close() {
 	if c.State() == ClosedState {
 		return
 	}
@@ -67,7 +67,7 @@ func (c *RabbitMQConnection) Close() {
 	}
 }
 
-func (c *RabbitMQConnection) keepAlive() {
+func (c *Connection) keepAlive() {
 	select {
 	case <-c.stopCh:
 		c.connection.Close()
@@ -109,7 +109,7 @@ func (c *RabbitMQConnection) keepAlive() {
 }
 
 // !! 当连接失败时，获取channel会出现阻塞，直到连接正常，才会返回可用的channel
-func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
+func (c *Connection) Channel() (*amqp.Channel, error) {
 	for c.State() != OpenedState {
 		_, ok := <-c.stopCh
 		if !ok {
@@ -122,6 +122,6 @@ func (c *RabbitMQConnection) Channel() (*amqp.Channel, error) {
 	return c.connection.Channel()
 }
 
-func (c *RabbitMQConnection) State() int32 {
+func (c *Connection) State() int32 {
 	return atomic.LoadInt32(&c.state)
 }

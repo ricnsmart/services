@@ -1,4 +1,4 @@
-package services
+package log
 
 import (
 	"go.uber.org/zap"
@@ -9,7 +9,7 @@ import (
 
 var Logger *zap.Logger
 
-func InitZap(filePath string, fs ...zapcore.Field) {
+func Init(filePath string, fs ...zapcore.Field) {
 	hook := lumberjack.Logger{
 		Filename:   filePath, // 日志文件路径
 		MaxSize:    128,      // 每个日志文件保存的最大尺寸 单位：M

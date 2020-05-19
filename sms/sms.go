@@ -1,4 +1,4 @@
-package services
+package sms
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type SmsResponse struct {
+type Response struct {
 	RequestId string `json:"RequestId" xml:"RequestId"`
 	BizId     string `json:"BizId" xml:"BizId"`
 	Code      string `json:"Code" xml:"Code"`
@@ -14,18 +14,18 @@ type SmsResponse struct {
 }
 
 var (
-	smsClient   *dysmsapi.Client
+	Client      *dysmsapi.Client
 	smsSignName string
 )
 
-func InitAliSms(accessKeyId, accessKeySecret, signName string) error {
+func NewClient(accessKeyId, accessKeySecret, signName string) error {
 	var err error
 	smsSignName = signName
-	smsClient, err = dysmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
+	Client, err = dysmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	return err
 }
 
-func SendSms(phoneNumbers, templateCode string, templateParamMap map[string]interface{}) (*SmsResponse, error) {
+func Send(phoneNumbers, templateCode string, templateParamMap map[string]interface{}) (*Response, error) {
 	request := dysmsapi.CreateSendSmsRequest()
 	request.Scheme = "https"
 	request.SignName = smsSignName
@@ -39,11 +39,11 @@ func SendSms(phoneNumbers, templateCode string, templateParamMap map[string]inte
 
 	request.TemplateParam = fmt.Sprintf(`{%v}`, strings.Join(templateParamArr, ","))
 
-	response, err := smsClient.SendSms(request)
+	response, err := Client.SendSms(request)
 	if err != nil {
 		return nil, err
 	}
-	return &SmsResponse{
+	return &Response{
 		RequestId: response.RequestId,
 		Code:      response.Code,
 		Message:   response.Message,

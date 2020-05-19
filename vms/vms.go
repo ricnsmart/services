@@ -1,10 +1,10 @@
-package services
+package vms
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dyvmsapi"
 )
 
-type VmsResponse struct {
+type Response struct {
 	RequestId string `json:"RequestId" xml:"RequestId"`
 	CallId    string `json:"CallId" xml:"CallId"`
 	Code      string `json:"Code" xml:"Code"`
@@ -16,14 +16,14 @@ var (
 	calledShowNumber string
 )
 
-func InitAliVms(accessKeyId, accessKeySecret, calledNumber string) error {
+func NewClient(accessKeyId, accessKeySecret, calledNumber string) error {
 	var err error
 	calledShowNumber = calledNumber
 	vmsClient, err = dyvmsapi.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	return err
 }
 
-func Call(calledNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
+func Call(calledNumber, ttsCode, ttsParam string) (*Response, error) {
 	request := dyvmsapi.CreateSingleCallByTtsRequest()
 	request.Scheme = "https"
 	request.CalledNumber = calledNumber
@@ -34,7 +34,7 @@ func Call(calledNumber, ttsCode, ttsParam string) (*VmsResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &VmsResponse{
+	return &Response{
 		RequestId: response.RequestId,
 		Code:      response.Code,
 		Message:   response.Message,

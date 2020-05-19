@@ -1,4 +1,4 @@
-package services
+package dns
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -31,11 +31,11 @@ type DomainRecordResponse struct {
 	RecordId  string `json:"RecordId" xml:"RecordId"`
 }
 
-var dnsClient *alidns.Client
+var Client *alidns.Client
 
-func InitAliDns(accessKeyId, accessKeySecret string) error {
+func NewClient(accessKeyId, accessKeySecret string) error {
 	var err error
-	dnsClient, err = alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
+	Client, err = alidns.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	return err
 }
 
@@ -47,7 +47,7 @@ func GetDomainRecords(domainName, keyWord string, pageNumber, pageSize int) (*Ge
 	request.PageSize = requests.NewInteger(pageSize)
 	request.KeyWord = keyWord
 
-	response, err := dnsClient.DescribeDomainRecords(request)
+	response, err := Client.DescribeDomainRecords(request)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func AddDomainRecord(r Record) (*DomainRecordResponse, error) {
 	request.Type = r.Type
 	request.Value = r.Value
 
-	response, err := dnsClient.AddDomainRecord(request)
+	response, err := Client.AddDomainRecord(request)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func DeleteDomainRecord(r Record) (*DomainRecordResponse, error) {
 	request := alidns.CreateDeleteDomainRecordRequest()
 	request.Scheme = "https"
 	request.RecordId = r.RecordId
-	response, err := dnsClient.DeleteDomainRecord(request)
+	response, err := Client.DeleteDomainRecord(request)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func UpdateDomainRecord(r Record) (*DomainRecordResponse, error) {
 	request.Type = r.Type
 	request.Value = r.Value
 
-	response, err := dnsClient.UpdateDomainRecord(request)
+	response, err := Client.UpdateDomainRecord(request)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func SetDomainRecordStatus(r Record) (*DomainRecordResponse, error) {
 	request.RecordId = r.RecordId
 	request.Status = r.Status
 
-	response, err := dnsClient.SetDomainRecordStatus(request)
+	response, err := Client.SetDomainRecordStatus(request)
 	if err != nil {
 		return nil, err
 	}

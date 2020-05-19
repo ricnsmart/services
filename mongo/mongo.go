@@ -1,4 +1,4 @@
-package services
+package mongo
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-var mongodb *mongo.Database
+var db *mongo.Database
 
-func ConnectMongodb(address, dbName string) error {
+func Connect(address, dbName string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(address))
@@ -22,10 +22,10 @@ func ConnectMongodb(address, dbName string) error {
 		return err
 	}
 
-	mongodb = client.Database(dbName)
+	db = client.Database(dbName)
 	return nil
 }
 
 func Collection(name string) *mongo.Collection {
-	return mongodb.Collection(name)
+	return db.Collection(name)
 }
