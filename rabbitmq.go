@@ -74,7 +74,7 @@ func (c *RabbitMQConnection) keepAlive() {
 		atomic.StoreInt32(&c.state, ClosedState)
 	case err := <-c.closeCh:
 		if err != nil {
-			log.Printf("disconnected with rabbitMQ,reason: %v\n", err)
+			log.Printf("disconnected with rabbitMQ,reason: %v", err)
 		}
 
 		atomic.StoreInt32(&c.state, ReopeningState)
@@ -96,12 +96,12 @@ func (c *RabbitMQConnection) keepAlive() {
 						tempDelay = max
 					}
 
-					log.Printf("rabbitMQ connection recover failed: %v,retry after %v\n", err, tempDelay)
+					log.Printf("rabbitMQ connection recover failed: %v,retry after %v", err, tempDelay)
 
 					time.Sleep(tempDelay)
 					continue
 				}
-				log.Printf("rabbitMQ connection recover succeeded \n")
+				log.Printf("rabbitMQ connection recover succeeded")
 				return
 			}
 		}
