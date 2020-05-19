@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var Logger *zap.Logger
+var logger *zap.Logger
 
 func Init(filePath string, fs ...zapcore.Field) {
 	hook := lumberjack.Logger{
@@ -49,5 +49,17 @@ func Init(filePath string, fs ...zapcore.Field) {
 	// 设置初始化字段
 	filed := zap.Fields(fs...)
 	// 构造日志
-	Logger = zap.New(core, caller, development, filed)
+	logger = zap.New(core, caller, development, filed)
+}
+
+func Info(msg string, fields ...zap.Field) {
+	logger.Info(msg, fields...)
+}
+
+func Warn(msg string, fields ...zap.Field) {
+	logger.Warn(msg, fields...)
+}
+
+func Error(msg string, fields ...zap.Field) {
+	logger.Error(msg, fields...)
 }
