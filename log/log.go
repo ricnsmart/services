@@ -1,10 +1,13 @@
 package log
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+	"runtime"
+	"strings"
 )
 
 var logger *zap.Logger
@@ -21,14 +24,12 @@ func Init(filePath string, fs ...zapcore.Field) {
 		TimeKey:        "time",
 		LevelKey:       "level",
 		NameKey:        "logger",
-		CallerKey:      "caller",
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.LowercaseLevelEncoder, // 小写编码器
 		EncodeTime:     zapcore.ISO8601TimeEncoder,    // ISO8601 UTC 时间格式
 		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 
@@ -53,17 +54,25 @@ func Init(filePath string, fs ...zapcore.Field) {
 }
 
 func Info(msg string, fields ...zap.Field) {
-	logger.Info(msg, fields...)
+	logger.Info(msg, getCaller(&fields)...)
 }
 
 func Warn(msg string, fields ...zap.Field) {
-	logger.Warn(msg, fields...)
+	logger.Warn(msg, getCaller(&fields)...)
 }
 
 func Error(msg string, fields ...zap.Field) {
-	logger.Error(msg, fields...)
+	logger.Error(msg, getCaller(&fields)...)
 }
 
 func Fatal(msg string, fields ...zap.Field) {
-	logger.Fatal(msg, fields...)
+	logger.Fatal(msg, getCaller(&fields)...)
+}
+
+func getCaller(fields *[]zap.Field) []zap.Field {
+	_, file, line, _ := runtime.Caller(2)
+	arr := strings.Split(file, "/")
+	l := len(arr)
+	*fields = append(*fields, zap.String("call", fmt.Sprintf("%v/%v:%v", arr[l-2], arr[l-1], line)))
+	return *fields
 }
