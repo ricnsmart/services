@@ -3,9 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/streadway/amqp"
-	"go.uber.org/zap"
 	"log"
 	"testing"
 	"time"
@@ -34,11 +32,6 @@ func TestSend(t *testing.T) {
 }
 
 func TestReceive(t *testing.T) {
-	serviceName := "service"
-
-	// 初始化zap日志
-	InitZap(fmt.Sprintf(`config/%v.log`, serviceName), zap.String("service", serviceName))
-
 	c := NewRabbitMQConnection(rabbitMQURL)
 	err := c.Open()
 	failOnError(err, "Failed to open a connection")

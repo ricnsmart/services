@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"github.com/streadway/amqp"
-	"go.uber.org/zap"
+	"log"
 	"sync/atomic"
 	"time"
 )
@@ -74,7 +74,7 @@ func (c *RabbitMQConnection) keepAlive() {
 		atomic.StoreInt32(&c.state, ClosedState)
 	case err := <-c.closeCh:
 		if err != nil {
-			Logger.Error("disconnected with rabbitMQ", zap.Error(err))
+			log.Printf("disconnected with rabbitMQ,reason: %v\n", err)
 		}
 
 		atomic.StoreInt32(&c.state, ReopeningState)
@@ -96,12 +96,12 @@ func (c *RabbitMQConnection) keepAlive() {
 						tempDelay = max
 					}
 
-					Logger.Error("rabbitMQ connection recover failed", zap.Error(e), zap.Duration("retry after", tempDelay))
+					log.Printf("rabbitMQ connection recover failed: %v,retry after %v\n", err, tempDelay)
 
 					time.Sleep(tempDelay)
 					continue
 				}
-				Logger.Info("rabbitMQ connection recover succeeded")
+				log.Printf("rabbitMQ connection recover succeeded \n")
 				return
 			}
 		}
