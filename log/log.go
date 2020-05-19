@@ -73,6 +73,6 @@ func getCaller(fields *[]zap.Field) []zap.Field {
 	_, file, line, _ := runtime.Caller(2)
 	arr := strings.Split(file, "/")
 	l := len(arr)
-	*fields = append(*fields, zap.String("call", fmt.Sprintf("%v/%v:%v", arr[l-2], arr[l-1], line)))
+	*fields = append(*fields, zap.String("caller", fmt.Sprintf("%v/%v:%v", arr[l-2], arr[l-1], line)))
 	return *fields
 }
