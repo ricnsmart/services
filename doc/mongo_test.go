@@ -3,8 +3,8 @@ package doc
 import "testing"
 
 const (
-	address = "mongodb://ricnsmart:df426e941cf1@139.9.170.194:27017"
-	dbName  = "gateway"
+	address = "mongodb://"
+	dbName  = ""
 )
 
 func TestConnect(t *testing.T) {

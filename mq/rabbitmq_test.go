@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const rabbitMQURL = "amqp://ricnsmart:030e6dcb31d9@139.9.170.194:5672"
+const rabbitMQURL = "amqp://"
 
 func TestNewConnection(t *testing.T) {
 	type args struct {

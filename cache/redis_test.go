@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	address  = "139.9.170.194:10032"
-	password = "caf2fc65a2b3"
+	address  = ""
+	password = ""
 )
 
 func TestConnect(t *testing.T) {

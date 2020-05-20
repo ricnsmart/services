@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	accessKeyID     = "LTAI5Gw0wvWgF0QD"
-	accessKeySecret = "TB2lpHjV5QMcF7zRHG2Ct6RnkWffnN"
-	signName        = "卫川智联"
+	accessKeyID     = ""
+	accessKeySecret = ""
+	signName        = ""
 )
 
 func TestSendSms(t *testing.T) {
